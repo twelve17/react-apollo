@@ -39,8 +39,8 @@ export function walkTree<Cache>(
   visitor: (
     element: ReactElement<any>,
     instance: any,
-    context: Context<Cache>,
-  ) => boolean | void,
+    context: Context<Cache>
+  ) => boolean | void
 ) {
   if (Array.isArray(element)) {
     element.forEach(item => walkTree(item, context, visitor));
@@ -132,7 +132,7 @@ export function walkTree<Cache>(
 
 function getQueriesFromTree<Cache>(
   { rootElement, rootContext = {} }: QueryTreeArgument<Cache>,
-  fetchRoot: boolean = true,
+  fetchRoot: boolean = true
 ): QueryTreeResult<Cache>[] {
   const queries = [];
 
@@ -157,7 +157,7 @@ function getQueriesFromTree<Cache>(
 export default function getDataFromTree(
   rootElement: ReactElement<any>,
   rootContext: any = {},
-  fetchRoot: boolean = true,
+  fetchRoot: boolean = true
 ): Promise<void> {
   let queries = getQueriesFromTree({ rootElement, rootContext }, fetchRoot);
 
@@ -183,7 +183,7 @@ export default function getDataFromTree(
           : new Error(
               `${
                 errors.length
-              } errors were thrown when executing your GraphQL queries.`,
+              } errors were thrown when executing your GraphQL queries.`
             );
       error.queryErrors = errors;
       throw error;

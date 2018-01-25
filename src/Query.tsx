@@ -16,6 +16,7 @@ import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
+const assign = require('object-assign');
 const invariant = require('invariant');
 const pick = require('lodash/pick');
 
@@ -26,7 +27,7 @@ function observableQueryFields(observable) {
     'fetchMore',
     'updateQuery',
     'startPolling',
-    'stopPolling',
+    'stopPolling'
   );
 
   Object.keys(fields).forEach(key => {
@@ -43,7 +44,7 @@ export interface QueryResult<TData = any> {
   data: TData;
   error?: ApolloError;
   fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions
   ) => Promise<ApolloQueryResult<any>>;
   loading: boolean;
   networkStatus: number;
@@ -51,7 +52,7 @@ export interface QueryResult<TData = any> {
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   updateQuery: (
-    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
+    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any
   ) => void;
 }
 
@@ -62,6 +63,7 @@ export interface QueryProps<TData = any> {
   pollInterval?: number;
   query: DocumentNode;
   variables?: OperationVariables;
+  ssr?: boolean;
 }
 
 export interface QueryState<TData = any> {
@@ -86,7 +88,7 @@ class Query<TData = any> extends React.Component<
 
     invariant(
       !!context.client,
-      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`,
+      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`
     );
     this.client = context.client;
 
@@ -127,6 +129,24 @@ class Query<TData = any> extends React.Component<
     return children(queryResult);
   }
 
+  fetchData(): Promise<ApolloQueryResult<any>> | boolean {
+    if (this.props.ssr === false) return false;
+    let fetchPolicy = this.props.fetchPolicy;
+    if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
+      fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
+    }
+
+    this.initializeQueryObservable(assign(this.props, { fetchPolicy }));
+
+    const result = this.queryObservable.currentResult();
+
+    if (result.loading) {
+      return this.queryObservable.result();
+    } else {
+      return false;
+    }
+  }
+
   private initializeQueryObservable = props => {
     const {
       variables,
@@ -142,7 +162,7 @@ class Query<TData = any> extends React.Component<
       operation.type === DocumentType.Query,
       `The <Query /> component requires a graphql query, but got a ${
         operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
-      }.`,
+      }.`
     );
 
     const clientOptions = {

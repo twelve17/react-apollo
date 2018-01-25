@@ -36,7 +36,7 @@
   "bundlesize": [
     {
       "path": "./lib/react-apollo.browser.umd.js",
-      "maxSize": "5.81 KB"
+      "maxSize": "6 KB"
     }
   ],
   "lint-staged": {
@@ -74,7 +74,8 @@
       "<rootDir>/test/typescript-usage.tsx"
     ],
     "projects": ["<rootDir>"],
-    "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex":
+      "(<rootDir>/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "setupFiles": ["<rootDir>/test/test-utils/setup.ts"]
   },
   "license": "MIT",
